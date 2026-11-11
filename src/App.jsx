@@ -1,30 +1,26 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 
 const App = () => {
   const [images, setImages] = useState([]);
+  const [index,setIndex] = useState(1);
 
-  async function handleButtonClick() {
-    try {
-      const response = await axios.get("https://picsum.photos/v2/list");
-      setImages(response.data);
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
-  }
+
+  useEffect(() => {
+    axios.get(`https://picsum.photos/v2/list?page=${index}&limit=100`)
+      .then((response) => {
+        setImages(response.data);
+      })
+      .catch((error) => console.error("Failed to fetch images:", error));
+  }, [index]);
 
   return (
     <div className="bg-black text-white min-h-screen p-4">
-      <button
-        className="bg-blue-500 hover:bg-blue-700 hover:scale-95 text-white font-bold py-2 px-4 rounded mb-6 cursor-pointer transition-transform"
-        onClick={handleButtonClick}
-      >
-        Click me
-      </button>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+      <div className="flex flex-wrap gap-4">
         {images.map((elem) => (
-          <div key={elem.id} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+          <div key={elem.id} className="rounded-lg overflow-hidden shadow-lg">
             <img
               src={elem.download_url}
               alt={elem.author}
@@ -36,6 +32,20 @@ const App = () => {
             </p>
           </div>
         ))}
+      </div>
+      <div className={"content-center flex justify-center gap-4"}>
+          <button className={"bg-white text-sm cursor-pointer active:scale-95 text-black rounded-xl px-4 py-2 font-semibold"}
+          onClick={() => {
+              if(index > 1){
+                  setIndex(index - 1);
+              }else{
+                  console.log("Cannot go back further");
+              }
+          }}>Prev</button>
+          <button className={"bg-white text-sm cursor-pointer active:scale-95 text-black rounded-xl px-4 py-2 font-semibold"}
+          onClick={() => {
+              setIndex(index + 1);}
+          }>Next</button>
       </div>
     </div>
   );
